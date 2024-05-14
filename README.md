@@ -1,1 +1,34 @@
 # Climate_change
+SELECT state, year, tempf, tempc, AVG(tempc) AS 'running_avg_temp' OVER (
+PARTITION BY state
+)
+FROM state_climate;
+
+SELECT state, year, tempc,
+FIRST_VALUE (tempc) OVER (
+  PARTITION BY state
+  ORDER BY tempc
+) AS 'fewest_tempc'
+FROM state_climate;
+
+SELECT state, year, tempc,
+LAST_VALUE (tempc) OVER (
+  PARTITION BY state
+  ORDER BY tempc
+  RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+) AS most_tempc
+FROM state_climate;
+
+SELECT state, year, tempc,
+tempc - LAG(tempc, 1, tempc) OVER (
+  PARTITION BY state
+  ORDER BY year DESC
+) AS 'change_in_temp'
+
+FROM state_climate;
+
+SELECT
+   RANK() OVER (
+    ORDER BY tempc
+   ) AS 'coldest_rank'
+   state, year, tempc FROM state_climate;
